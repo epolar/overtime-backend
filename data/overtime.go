@@ -7,6 +7,6 @@ type Overtime struct {
 
 type OvertimeRecord struct {
 	Model
-	Overtime uint64 `gorm:"index"`
-	User     uint64 `gorm:"index"`
+	OvertimeID uint64 `gorm:"index;unique_index:ou"`
+	UserID     uint64 `gorm:"index;unique_index:ou"`
 }

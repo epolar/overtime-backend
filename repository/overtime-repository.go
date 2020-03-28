@@ -37,14 +37,12 @@ func (r *OvertimeRepository) SaveRecord(v *data.OvertimeRecord) error {
 	return r.save(v)
 }
 
-func (r *OvertimeRepository) FindRecordsByTitle(title string) (resp []*data.User, err error) {
-	records := new([]*data.OvertimeRecord)
+func (r *OvertimeRepository) FindRecordsByTitle(title string) (resp []*data.OvertimeRecord, err error) {
 	var overtime data.Overtime
 	if err = r.db.First(&overtime, "title = ?", title).
-		Related(&records, "id").
-		Related(&resp, "id").
+		Related(&resp, "overtime_id").
 		Error; err != nil {
-		return nil, err
+		return
 	}
 	return
 }
@@ -55,7 +53,7 @@ func (r *OvertimeRepository) IsJoined(overtimeID uint64, userID uint64) (bool, e
 	tableName := r.db.NewScope(&data.OvertimeRecord{}).TableName()
 	err := r.db.
 		Table(tableName).
-		Where("overtime = ? and user = ?", overtimeID, userID).
+		Where("overtime_id = ? and user_id = ?", overtimeID, userID).
 		Count(&count).
 		Error
 	if err != nil {

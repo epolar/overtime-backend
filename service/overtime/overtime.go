@@ -69,8 +69,8 @@ func (o *Overtime) JoinToday(userID uint64) (err error) {
 		}
 
 		overtimeRecord := &data.OvertimeRecord{
-			Overtime: overtime.ID,
-			User:     userInfo.ID,
+			OvertimeID: overtime.ID,
+			UserID:     userInfo.ID,
 		}
 		if err = overtimeRepository.SaveRecord(overtimeRecord); err != nil {
 			log.Log.Errorf("save overtime record failure: %s", err)
@@ -87,7 +87,8 @@ func (o *Overtime) JoinToday(userID uint64) (err error) {
 
 func (o *Overtime) GetTodayRecords() (resp []*data.User, err error) {
 	overtimeRepository := repository.DefaultOvertimeRepository()
-	resp, err = overtimeRepository.FindRecordsByTitle(o.getTodayTitle())
+	var records []*data.OvertimeRecord
+	records, err = overtimeRepository.FindRecordsByTitle(o.getTodayTitle())
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			err = nil
@@ -96,5 +97,16 @@ func (o *Overtime) GetTodayRecords() (resp []*data.User, err error) {
 		log.Log.Errorf("find overtime(%s) records failure: %s", o.getTodayTitle(), err)
 		return
 	}
+
+	userIDs := make([]uint64, 0, len(records))
+	for _, record := range records {
+		userIDs = append(userIDs, record.UserID)
+	}
+	userRepository := repository.DefaultUserRepository()
+	if resp, err = userRepository.FindByIdIn(userIDs); err != nil {
+		log.Log.Errorf("find user info by id in failure: %s", err)
+		return
+	}
+
 	return
 }

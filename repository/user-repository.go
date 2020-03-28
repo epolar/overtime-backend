@@ -33,3 +33,8 @@ func (r *UserRepository) FindByID(userID uint64) (*data.User, error) {
 		return &user, nil
 	}
 }
+
+func (r *UserRepository) FindByIdIn(userIDs []uint64) (resp []*data.User, err error) {
+	err = r.db.Find(&resp, "id in (?)", userIDs).Error
+	return
+}
