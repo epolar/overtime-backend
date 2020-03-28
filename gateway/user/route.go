@@ -19,14 +19,18 @@ func Run(addr string) error {
 		AllowedMethods: corsConfig.Methods,
 		AllowedHeaders: corsConfig.Headers,
 	}))
+	// enable options methods
+	mvc.Configure(app.AllowMethods(iris.MethodOptions))
 
 	app.Use(recover2.New())
 	app.Use(logger.New())
 
-	mvc.Configure(app.Party("user"), userControl)
-	mvc.Configure(app.Party("overtime"), overtimeControl)
+	mvcApp := mvc.New(app)
 
-	return app.Listen(addr)
+	mvcApp.Party("user").Configure(userControl)
+	mvcApp.Party("overtime").Configure(overtimeControl)
+
+	return app.Run(iris.Addr(addr))
 }
 
 func userControl(app *mvc.Application) {
