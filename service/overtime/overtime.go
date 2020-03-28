@@ -75,6 +75,10 @@ func (o *Overtime) GetTodayRecords() (resp []*data.User, err error) {
 	overtimeRepository := repository.DefaultOvertimeRepository()
 	resp, err = overtimeRepository.FindRecordsByTitle(o.getTodayTitle())
 	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = nil
+			return
+		}
 		log.Log.Errorf("find overtime(%s) records failure: %s", o.getTodayTitle(), err)
 		return
 	}
