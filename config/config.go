@@ -26,7 +26,7 @@ type CorsConfig struct {
 
 func (c *cfg) CorsConfig() *CorsConfig {
 	var cors CorsConfig
-	if err := viper.Unmarshal(&cors); err != nil {
+	if err := viper.UnmarshalKey("cors", &cors); err != nil {
 		panic(err)
 	}
 	return &cors
