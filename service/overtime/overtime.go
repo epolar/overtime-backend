@@ -85,7 +85,7 @@ func (o *Overtime) JoinToday(userID uint64) (err error) {
 	return
 }
 
-func (o *Overtime) GetTodayRecords() (resp []*data.User, err error) {
+func (o *Overtime) GetTodayJoinedUsers() (resp []*data.User, err error) {
 	overtimeRepository := repository.DefaultOvertimeRepository()
 	var records []*data.OvertimeRecord
 	records, err = overtimeRepository.FindRecordsByTitle(o.getTodayTitle())

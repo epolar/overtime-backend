@@ -31,7 +31,7 @@ func (c *OvertimeController) PostJoin(ctx iris.Context) error {
 // @success 200
 // @route /overtime/today [get]
 func (c *OvertimeController) GetToday(ctx iris.Context) error {
-	records, err := overtimeService.Service().GetTodayRecords()
+	records, err := overtimeService.Service().GetTodayJoinedUsers()
 	if err != nil {
 		return err
 	}
