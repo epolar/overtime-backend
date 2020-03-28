@@ -48,3 +48,18 @@ func (r *OvertimeRepository) FindRecordsByTitle(title string) (resp []*data.User
 	}
 	return
 }
+
+func (r *OvertimeRepository) IsJoined(overtimeID uint64, userID uint64) (bool, error) {
+	var count uint32
+
+	tableName := r.db.NewScope(&data.OvertimeRecord{}).TableName()
+	err := r.db.
+		Table(tableName).
+		Where("overtime = ? and user = ?", overtimeID, userID).
+		Count(&count).
+		Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

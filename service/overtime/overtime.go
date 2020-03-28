@@ -40,32 +40,46 @@ func (o *Overtime) JoinToday(userID uint64) (err error) {
 		}
 	}
 
-	overtimeRepository := repository.DefaultOvertimeRepository()
+	if err := repository.Transaction(func(tx *repository.DBCli) (err error) {
+		overtimeRepository := repository.NewOvertimeRepository(tx)
 
-	overtimeTitle := o.getTodayTitle()
-	var overtime *data.Overtime
-	if overtime, err = overtimeRepository.FindByTitle(overtimeTitle); err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			overtime = &data.Overtime{
-				Title: overtimeTitle,
-			}
-			if err = overtimeRepository.SaveOvertime(overtime); err != nil {
-				log.Log.Errorf("save overtime info failure: %s", err)
+		overtimeTitle := o.getTodayTitle()
+		var overtime *data.Overtime
+		if overtime, err = overtimeRepository.FindByTitle(overtimeTitle); err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				overtime = &data.Overtime{
+					Title: overtimeTitle,
+				}
+				if err = overtimeRepository.SaveOvertime(overtime); err != nil {
+					log.Log.Errorf("save overtime info failure: %s", err)
+					return
+				}
+			} else {
+				log.Log.Errorf("find overtime by title(%s) failure: %s", overtimeTitle, err)
 				return
 			}
-		} else {
-			log.Log.Errorf("find overtime by title(%s) failure: %s", overtimeTitle, err)
+		}
+
+		var joined bool
+		if joined, err = overtimeRepository.IsJoined(overtime.ID, userInfo.ID); err != nil {
+			log.Log.Errorf("assert user is joined overtime failure: %s", err)
+			return
+		} else if joined {
 			return
 		}
-	}
 
-	overtimeRecord := &data.OvertimeRecord{
-		Overtime: overtime.ID,
-		User:     userInfo.ID,
-	}
-	if err = overtimeRepository.SaveRecord(overtimeRecord); err != nil {
-		log.Log.Errorf("save overtime record failure: %s", err)
+		overtimeRecord := &data.OvertimeRecord{
+			Overtime: overtime.ID,
+			User:     userInfo.ID,
+		}
+		if err = overtimeRepository.SaveRecord(overtimeRecord); err != nil {
+			log.Log.Errorf("save overtime record failure: %s", err)
+			return
+		}
+
 		return
+	}); err != nil {
+		return err
 	}
 
 	return

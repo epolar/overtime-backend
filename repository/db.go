@@ -52,3 +52,26 @@ func NewDBClient(params map[string]string) *DBCli {
 
 	return &DBCli{cli}
 }
+
+type TxHandler interface {
+	Handle(tx *DBCli) error
+}
+
+type TxCallback interface {
+	Callback(tx *DBCli) error
+}
+
+func Transaction(handler func(tx *DBCli) error, callbacks ...func(tx *DBCli) error) error {
+	return DB().Transaction(func(tx *gorm.DB) error {
+		cli := &DBCli{DB: tx}
+		if err := handler(cli); err != nil {
+			return err
+		}
+		for _, callback := range callbacks {
+			if err := callback(cli); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
