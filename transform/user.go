@@ -20,8 +20,10 @@ type UserTransform struct{}
 
 func (c *UserTransform) ConvertUser(user *data.User) *response.User {
 	return &response.User{
-		Name: user.Name,
-		ID:   user.ID,
+		Name:  user.Name,
+		ID:    user.ID,
+		Nick:  user.Nick,
+		Label: user.Label,
 	}
 }
 

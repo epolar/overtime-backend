@@ -19,12 +19,17 @@ func Service() *User {
 
 type User struct{}
 
-func (u *User) Add(name string, label string) (*data.User, error) {
+func (u *User) Add(
+	name string,
+	label string,
+	nick string,
+) (*data.User, error) {
 	rep := repository.DefaultUserRepository()
 
 	user := &data.User{
 		Name:  name,
 		Label: label,
+		Nick:  nick,
 	}
 	if err := rep.SaveUser(user); err != nil {
 		log.Log.Errorf("save user info failure: %s", err)

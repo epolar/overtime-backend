@@ -30,7 +30,7 @@ func (p *PersonController) PostAdd(ctx iris.Context) error {
 	if err := ctx.ReadJSON(&params); err != nil {
 		return err
 	}
-	if resp, err := userService.Service().Add(params.Name, params.Label); err != nil {
+	if resp, err := userService.Service().Add(params.Name, params.Label, params.Nick); err != nil {
 		return err
 	} else {
 		return JSON(ctx, transform.User().ConvertUser(resp))
