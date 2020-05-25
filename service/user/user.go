@@ -1,10 +1,13 @@
 package user
 
 import (
+	"errors"
 	"orderStatistics/data"
 	"orderStatistics/repository"
 	"orderStatistics/runtime/log"
 	"sync"
+
+	"github.com/jinzhu/gorm"
 )
 
 var userService User
@@ -47,4 +50,18 @@ func (u *User) All() ([]*data.User, error) {
 func (u *User) GetUserInfoByID(userID uint64) (*data.User, error) {
 	rep := repository.DefaultUserRepository()
 	return rep.FindByID(userID)
+}
+
+func (u *User) Delete(userID uint64) (err error) {
+	rep := repository.DefaultUserRepository()
+	var user *data.User
+	if user, err = rep.FindByID(userID); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = errors.New("user not found")
+		} else {
+			log.Log.Errorf("")
+		}
+		return
+	}
+	return rep.DeleteUser(user)
 }

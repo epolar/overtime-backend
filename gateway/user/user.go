@@ -1,10 +1,11 @@
 package user
 
 import (
-	"github.com/kataras/iris/v12"
 	"orderStatistics/request"
 	userService "orderStatistics/service/user"
 	"orderStatistics/transform"
+
+	"github.com/kataras/iris/v12"
 )
 
 type PersonController struct{}
@@ -35,4 +36,13 @@ func (p *PersonController) PostAdd(ctx iris.Context) error {
 	} else {
 		return JSON(ctx, transform.User().ConvertUser(resp))
 	}
+}
+
+// @tags 用户
+// @summary 删除用户
+// @param user_id path number true "用户ID"
+// @success 204
+// @route /user/{user_id} [delete]
+func (p *PersonController) DeleteBy(userID uint64) error {
+	return userService.Service().Delete(userID)
 }

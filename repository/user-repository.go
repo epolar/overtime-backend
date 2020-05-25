@@ -38,3 +38,7 @@ func (r *UserRepository) FindByIdIn(userIDs []uint64) (resp []*data.User, err er
 	err = r.db.Find(&resp, "id in (?)", userIDs).Error
 	return
 }
+
+func (r *UserRepository) DeleteUser(user *data.User) (err error) {
+	return r.db.Delete(&user).Error
+}
